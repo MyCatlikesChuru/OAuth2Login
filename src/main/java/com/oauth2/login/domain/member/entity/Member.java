@@ -34,10 +34,11 @@ public class Member {
 
 
     @Builder
-    public Member(String username, String email, String password)  {
+    public Member(String username, String email, String password, List<String> roles)  {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.roles = roles;
     }
 
 

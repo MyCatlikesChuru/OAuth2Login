@@ -12,7 +12,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -36,9 +38,12 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
 
         Member member = saveOrUpdate(oAuthUserProfile); // DB에 저장
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(member.getAuthority().toString())),
-                attributes, userNameAttributeName);
+
+        List<SimpleGrantedAuthority> collect = member.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
+
+        return new DefaultOAuth2User(collect, attributes, userNameAttributeName);
     }
 
     // oauth 이메일(아이디)로 회원가입 전 중복체크하고 oauth 계정에서 닉네임 등 변동 있을시 업데이트

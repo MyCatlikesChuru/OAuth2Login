@@ -33,7 +33,7 @@ public class SecurityConfiguration {
 	private final TokenProvider tokenProvider;
 	private final OAuthService oAuthService;
 
-	//private final RefreshTokenRepository refreshTokenRepository; 
+	//private final RefreshTokenRepository refreshTokenRepository;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -62,11 +62,6 @@ public class SecurityConfiguration {
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(List.of("http://localhost:3000","http://localhost:8080"));
@@ -87,7 +82,7 @@ public class SecurityConfiguration {
 			AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
 			JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, tokenProvider);
-			jwtAuthenticationFilter.setFilterProcessesUrl("/auth/login");
+			jwtAuthenticationFilter.setFilterProcessesUrl("/members/login");
 			jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler()); // refreshTokenRepository 넣기
 			jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
 
