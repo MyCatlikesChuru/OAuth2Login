@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String accessToken = tokenDto.getAccessToken(); // accessToken 만들기
         String refreshToken = tokenDto.getRefreshToken(); // refreshToken 만들기
 
-        String headerValue = "Bearer "+ accessToken;
+        String headerValue = grantType + " " + accessToken;
         response.setHeader("Authorization",headerValue);
         response.setHeader("Refresh",refreshToken);
 

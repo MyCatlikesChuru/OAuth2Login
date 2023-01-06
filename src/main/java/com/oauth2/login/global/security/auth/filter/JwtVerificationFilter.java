@@ -29,7 +29,8 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     // 인증에서 제외할 url
     private static final List<String> EXCLUDE_URL =
-            List.of("/members/signup",
+            List.of("/",
+                    "/members/signup",
                     "/members/login",
                     "/oauth2/authorization/google",
                     "/oauth2/authorization/kakao",
@@ -79,11 +80,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     // OncePerRequestFilter의 shouldNotFilter(); 오버라이딩함
     // EXCLUDE_URL과 동일한 요청이들어 왔을 경우, 현재 필터를 진행하지 않고 다음 필터를 진행
-    @Override
+/*    @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         boolean result = EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
         log.info("# Exclude url check = {}, result check = {}",request.getServletPath(),result);
         return result;
-    }
+    }*/
 
 }

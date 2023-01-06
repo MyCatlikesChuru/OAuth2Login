@@ -41,10 +41,10 @@ public class Member {
         this.roles = roles;
     }
 
-
-    public Member oauthUpdate(String name, String email) {
+    public Member oauthUpdate(String name, String email, List<String> roles) {
         this.username = name;
         this.email = email;
+        this.roles = roles;
         return this;
     }
 

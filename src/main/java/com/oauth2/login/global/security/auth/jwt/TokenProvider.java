@@ -29,7 +29,7 @@ public class TokenProvider {
 	 * 유저 정보로 JWT 토큰을 만들거나 토큰을 바탕으로 유저 정보를 가져옴
 	 * JWT 토큰 관련 암호화, 복호화, 검증 로직
 	 */
-	private static final String BEARER_TYPE = "bearer";
+	private static final String BEARER_TYPE = "Bearer";
 
 	@Getter
 	@Value("${jwt.secret-key}")
@@ -45,11 +45,10 @@ public class TokenProvider {
 
 	private Key key;
 
+	// Bean 등록후 Key SecretKey HS256 decode
 	@PostConstruct
 	public void init(){
-		log.info("secretKey ={}",secretKey);
-		String test = "LeeJaehyeok637637123231231231123";
-		String encode = Encoders.BASE64.encode(test.getBytes(StandardCharsets.UTF_8));
+		String encode = Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
 		byte[] keyBytes = Decoders.BASE64.decode(encode);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
@@ -151,24 +150,12 @@ public class TokenProvider {
 
 	public Claims parseClaims(String accessToken)  {
 
-//		Key test = test(this.secretKey);
 
 		return Jwts.parserBuilder()
 				.setSigningKey(key)
 				.build()
 				.parseClaimsJws(accessToken)
 				.getBody();
-	}
-
-//	public Key test(String secretKey){
-//		byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
-//		return Keys.hmacShaKeyFor(keyBytes);
-//	}
-
-
-	public Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey){
-		byte[] decode = Decoders.BASE64.decode(base64EncodedSecretKey);
-		return Keys.hmacShaKeyFor(decode);
 	}
 
 }

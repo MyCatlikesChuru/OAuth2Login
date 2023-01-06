@@ -2,6 +2,8 @@ package com.oauth2.login.global.security.auth.oauth;
 
 import com.oauth2.login.domain.member.entity.Member;
 
+import java.util.List;
+
 public class OAuthUserProfile {
     private final String name;
     private final String email;
@@ -13,11 +15,12 @@ public class OAuthUserProfile {
         this.oauthId = oauthId;
     }
 
-    public Member createOauth2Member() {
+    public Member createOauth2Member(List<String> roles) {
         return Member.builder()
                 .username(name) //이메일
                 .email(email) // 이름
                 .password(oauthId) // 고유값
+                .roles(roles)
                 .build();
     }
 

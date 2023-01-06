@@ -75,6 +75,6 @@ server:
       force-response: true
 
 jwt:
-  secret-key: LeeJaehyeok637637123231231231123 # ${JWT_SECRET_KEY}  # 환경 변수로 설정했음
+  secret-key: ${JWT_SECRET_KEY}  # 환경 변수로 설정했음
   access-token-expiration-minutes: 30
   refresh-token-expiration-minutes: 420

@@ -2,10 +2,7 @@ package com.oauth2.login.global.security.config;
 
 import com.oauth2.login.global.security.auth.filter.JwtAuthenticationFilter;
 import com.oauth2.login.global.security.auth.filter.JwtVerificationFilter;
-import com.oauth2.login.global.security.auth.handler.MemberAccessDeniedHandler;
-import com.oauth2.login.global.security.auth.handler.MemberAuthenticationEntryPoint;
-import com.oauth2.login.global.security.auth.handler.MemberAuthenticationFailureHandler;
-import com.oauth2.login.global.security.auth.handler.MemberAuthenticationSuccessHandler;
+import com.oauth2.login.global.security.auth.handler.*;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
 import com.oauth2.login.global.security.auth.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
@@ -55,9 +52,10 @@ public class SecurityConfiguration {
 				.and()
 				.authorizeHttpRequests(authorize -> authorize
 						.anyRequest().permitAll())
-				.oauth2Login() // OAuth2 로그인 설정 시작점
+				.oauth2Login()// OAuth2 로그인 설정 시작점
 				.userInfoEndpoint() // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
 				.userService(oAuthService);
+
 		return http.build();
 	}
 

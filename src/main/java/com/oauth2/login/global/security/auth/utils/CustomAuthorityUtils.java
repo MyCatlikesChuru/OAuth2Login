@@ -17,6 +17,15 @@ public class CustomAuthorityUtils {
     private final List<String> ADMIN_ROLES_STRING = List.of("ADMIN", "USER");
     private final List<String> USER_ROLES_STRING = List.of("USER");
 
+
+    public List<String> getAuthrities(String role){
+        if(ADMIN_ROLES_STRING.get(0).equals(role)){
+            return this.ADMIN_ROLES_STRING;
+        }
+        return USER_ROLES_STRING;
+    }
+
+
     // DB에 저장된 Role을 기반으로 권한 정보 생성
     public List<GrantedAuthority> createAuthorities(List<String> roles) {
         return roles.stream()
