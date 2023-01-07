@@ -29,6 +29,7 @@ public enum OAuthAttributes {
                 String.valueOf(attributes.get("id"))
         );
     });
+
     private final String registrationId;
     private final Function<Map<String, Object>, OAuthUserProfile> of;
 
@@ -36,10 +37,6 @@ public enum OAuthAttributes {
         this.registrationId = registrationId;
         this.of = of;
     }
-
-//    public static Map<String, Object> sameGetAttributes(String registrationId, Map<String, Object> attributes){
-//
-//    }
 
     public static OAuthUserProfile extract(String registrationId, Map<String, Object> attributes) {
         return Arrays.stream(values())

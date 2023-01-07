@@ -65,6 +65,10 @@ public class TokenProvider {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
+		log.info("# getEmail() = {} ",authMember.getEmail() );
+		log.info("# getId() = {} ",authMember.getId() );
+		log.info("# getAuth() = {} ",authMember.getAuthorities().toString() );
+
 		Date accessTokenExpiresIn = getTokenExpiration(accessTokenExpirationMinutes);
 		Date refreshTokenExpiresIn = getTokenExpiration(refreshTokenExpirationMinutes);
 
@@ -76,15 +80,17 @@ public class TokenProvider {
 
 		// Access Token 생성
 		String accessToken = Jwts.builder()
-			.setSubject(authMember.getEmail())                  // payload "sub": "email"
-			.setClaims(claims)      							// payload "roles": "ROLE_USER"
-			.setExpiration(accessTokenExpiresIn)                // payload "exp": 1516239022 (예시)
+			.setClaims(claims)      							// payload "roles": "USER"
+			.setSubject(authMember.getEmail())                  // payload "sub": "email@naver.com"
+			.setIssuedAt(Calendar.getInstance().getTime())		// payload "iat" : 1673108836
+			.setExpiration(accessTokenExpiresIn)                // payload "exp": 1673110636
 			.signWith(key, SignatureAlgorithm.HS256)         	// header "alg": "HS512"
 			.compact();
 
 		// Refresh Token 생성
 		String refreshToken = Jwts.builder()
-			.setSubject(authMember.getEmail().toString()) // id? email?
+			.setSubject(authMember.getEmail()) // id? email?
+			.setIssuedAt(Calendar.getInstance().getTime())
 			.setExpiration(refreshTokenExpiresIn)
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();

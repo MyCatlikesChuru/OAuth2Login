@@ -17,7 +17,7 @@ public class OAuthUserProfile {
         this.oauthId = oauthId;
     }
 
-    public Member createOauth2Member(List<String> roles) {
+    public Member createOauth2Member(String name, String email, List<String> roles) {
         return Member.builder()
                 .username(name) //이메일
                 .email(email) // 이름

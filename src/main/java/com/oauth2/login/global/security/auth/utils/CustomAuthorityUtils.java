@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @Component
 public class CustomAuthorityUtils {
     private String adminMailAddress = "admin@google.com";
-
     private final List<GrantedAuthority> ADMIN_ROLES = AuthorityUtils.createAuthorityList("ROLE_ADMIN", "ROLE_USER");
     private final List<GrantedAuthority> USER_ROLES = AuthorityUtils.createAuthorityList("ROLE_USER");
     private final List<String> ADMIN_ROLES_STRING = List.of("ADMIN", "USER");
@@ -24,7 +23,6 @@ public class CustomAuthorityUtils {
         }
         return USER_ROLES_STRING;
     }
-
 
     // DB에 저장된 Role을 기반으로 권한 정보 생성
     public List<GrantedAuthority> createAuthorities(List<String> roles) {
