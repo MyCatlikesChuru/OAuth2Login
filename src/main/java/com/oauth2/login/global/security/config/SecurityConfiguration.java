@@ -1,5 +1,6 @@
 package com.oauth2.login.global.security.config;
 
+import com.oauth2.login.domain.member.service.MemberService;
 import com.oauth2.login.global.security.auth.filter.JwtAuthenticationFilter;
 import com.oauth2.login.global.security.auth.filter.JwtVerificationFilter;
 import com.oauth2.login.global.security.auth.handler.*;
@@ -11,11 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -25,11 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+//@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 	private final TokenProvider tokenProvider;
 	private final OAuthService oAuthService;
+	private final MemberService memberService;
 
 	//private final RefreshTokenRepository refreshTokenRepository;
 
@@ -57,7 +56,7 @@ public class SecurityConfiguration {
 						.antMatchers(HttpMethod.POST, "/api/admin").hasRole("ADMIN")
 						.anyRequest().permitAll())
 				.oauth2Login(oauth2 -> oauth2
-						.successHandler(new OAuth2MemberSuccessHandler(tokenProvider))
+						.successHandler(new OAuth2MemberSuccessHandler(tokenProvider,memberService))
 						.userInfoEndpoint() // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
 						.userService(oAuthService)
 				); // OAuth2 로그인 설정 시작점

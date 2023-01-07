@@ -59,15 +59,15 @@ public class TokenProvider {
 		return calendar.getTime();
 	}
 
+
+//	public TokenDto generateTokenDto(Authentication authMember) {
+//
+//	}
 	public TokenDto generateTokenDto(AuthMember authMember) {
 		// 권한들 가져오기
 		String authorities = authMember.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
-
-		log.info("# getEmail() = {} ",authMember.getEmail() );
-		log.info("# getId() = {} ",authMember.getId() );
-		log.info("# getAuth() = {} ",authMember.getAuthorities().toString() );
 
 		Date accessTokenExpiresIn = getTokenExpiration(accessTokenExpirationMinutes);
 		Date refreshTokenExpiresIn = getTokenExpiration(refreshTokenExpirationMinutes);

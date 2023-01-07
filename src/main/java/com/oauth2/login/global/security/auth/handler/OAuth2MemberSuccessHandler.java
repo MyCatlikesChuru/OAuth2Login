@@ -1,16 +1,22 @@
 package com.oauth2.login.global.security.auth.handler;
 
 
+import com.oauth2.login.domain.member.entity.Member;
+import com.oauth2.login.domain.member.repository.MemberRepository;
+import com.oauth2.login.domain.member.service.MemberService;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
 import com.oauth2.login.global.security.auth.oauth.OAuthAttributes;
+import com.oauth2.login.global.security.auth.oauth.OAuthCustomUser;
 import com.oauth2.login.global.security.auth.oauth.OAuthUserProfile;
 import com.oauth2.login.global.security.auth.userdetails.AuthMember;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,49 +38,50 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenProvider tokenProvider;
+    private final MemberService memberService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authResult) throws IOException, ServletException {
 
-        log.info("# Redirect to Frontend");
 
-        DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authResult.getPrincipal();
 
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        String registrationId = oAuth2User.getName();
-        Set<GrantedAuthority> authorities = (Set<GrantedAuthority>) oAuth2User.getAuthorities();
+        OAuthCustomUser oAuthCustomUser = (OAuthCustomUser) authResult.getPrincipal();
+        // OAuth2User oAuth2User = (DefaultOAuth2User) authResult.getPrincipal(); // 기본 구현체 반환하는법!!
+        Map<String, Object> attributes = oAuthCustomUser.getAttributes();
+        String registrationId = oAuthCustomUser.getName();
+        List<GrantedAuthority> authorities = (List<GrantedAuthority>) oAuthCustomUser.getAuthorities();
 
-        List<String> authorityList = authorities.stream()
+
+        List<String> roles = authorities.stream()
                 .map(authority -> {
                     return authority.getAuthority().substring(5);
                 })
                 .collect(Collectors.toList());
 
-//        authorityList.
-//
-//        OAuthUserProfile oAuthUserProfile = OAuthAttributes.extract(registrationId, attributes);
-//
-//        AuthMember.of()
+        OAuthUserProfile oAuthUserProfile = OAuthAttributes.extract(registrationId, attributes); // OAuth2Profile 생성
+        Member member = memberService.saveMemberOauth(oAuthUserProfile, roles); // DB에 권한과 정보 저장 (권한은 1:N 테이블로 설계)
+        AuthMember authMember = AuthMember.of(member);
 
-        AuthMember authMember = (AuthMember) authResult.getPrincipal();
+        log.info("# OAuth2.0 AuthenticationSuccess !");
+        log.info("# Redirect to Frontend");
+        //AuthMember authMember = (AuthMember) authResult.getPrincipal();
         TokenDto tokenDto = tokenProvider.generateTokenDto(authMember);
         String grantType = tokenDto.getGrantType(); // Bearer
         String accessToken = tokenDto.getAccessToken(); // accessToken 만들기
         String refreshToken = tokenDto.getRefreshToken(); // refreshToken 만들기
 
-        log.info("# 타입 캐스팅 문제없음2");
-
-        log.info("# accessToken = {}",accessToken);
-        log.info("# refreshToken = {}",refreshToken);
+        log.info("# accessToken generated complete!");
+        log.info("# refreshToken generated complete !");
 
         // 리다이렉트를 하기위한 정보들을 보내줌
-        redirect(request,response,accessToken,refreshToken);
+        redirect(request,response,grantType,accessToken,refreshToken);
     }
 
     private void redirect(HttpServletRequest request,
                           HttpServletResponse response,
+                          String grantType,
                           String accessToken,
                           String refreshToken) throws IOException {
 
@@ -83,7 +90,7 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
         String uri = createURI(request, accessToken, refreshToken).toString();
 
         // 헤더에 전송해보기
-        String headerValue = "Bearer "+ accessToken;
+        String headerValue = grantType + " " + accessToken;
         response.setHeader("Authorization",headerValue); // Header에 등록
         response.setHeader("Refresh",refreshToken); // Header에 등록
         // response.setHeader("Access-Control-Allow-Credentials:", "true");
@@ -109,7 +116,7 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
                 .host(serverName)
                 //.host("localhost")
                 .port(80) // 기본 포트가 80이기 때문에 괜찮다
-                .path("/token")
+                .path("/receive-token.html")
                 .queryParams(queryParams)
                 .build()
                 .toUri();

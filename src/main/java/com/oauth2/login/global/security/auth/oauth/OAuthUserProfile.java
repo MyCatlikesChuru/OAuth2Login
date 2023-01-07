@@ -25,5 +25,4 @@ public class OAuthUserProfile {
                 .roles(roles)
                 .build();
     }
-
 }
