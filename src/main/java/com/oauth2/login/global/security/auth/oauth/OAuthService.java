@@ -6,7 +6,6 @@ import com.oauth2.login.global.security.auth.utils.CustomAuthorityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -42,6 +40,8 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities(roles);
 
         saveOrUpdate(oAuthUserProfile, roles); // DB에 저장
+
+        log.info("# OAuth2 DB 저장완료 ");
 
         return new DefaultOAuth2User(authorities, attributes, userNameAttributeName);
     }

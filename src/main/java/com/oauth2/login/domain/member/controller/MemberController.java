@@ -2,6 +2,7 @@ package com.oauth2.login.domain.member.controller;
 
 
 import com.oauth2.login.domain.member.controller.dto.MemberPostDto;
+import com.oauth2.login.domain.member.controller.dto.ApiTestDto;
 import com.oauth2.login.domain.member.service.MemberService;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,4 @@ public class MemberController {
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
-
-
-
 }

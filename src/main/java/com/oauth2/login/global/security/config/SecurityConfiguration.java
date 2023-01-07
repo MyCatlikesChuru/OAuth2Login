@@ -8,6 +8,7 @@ import com.oauth2.login.global.security.auth.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 	private final TokenProvider tokenProvider;
@@ -51,11 +52,14 @@ public class SecurityConfiguration {
 				.apply(new CustomFilterConfigurer())
 				.and()
 				.authorizeHttpRequests(authorize -> authorize
+						.antMatchers(HttpMethod.GET, "/api/**").permitAll()
+						.antMatchers(HttpMethod.POST, "/api/**").hasRole("USER")
 						.anyRequest().permitAll())
-				.oauth2Login()// OAuth2 로그인 설정 시작점
-				.userInfoEndpoint() // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
-				.userService(oAuthService);
-
+				.oauth2Login(oauth2 -> oauth2
+						.successHandler(new OAuth2MemberSuccessHandler(tokenProvider))
+						.userInfoEndpoint() // OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
+						.userService(oAuthService)
+				); // OAuth2 로그인 설정 시작점
 		return http.build();
 	}
 

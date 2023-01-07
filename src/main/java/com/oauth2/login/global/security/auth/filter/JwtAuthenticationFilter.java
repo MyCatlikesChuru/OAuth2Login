@@ -70,6 +70,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 //                .build();
 //        response.setHeader("Set-Cookie", cookie.toString());
 
+        authMember.getRoles().stream().forEach(a -> log.info("# authMember = {}", a));
 
         log.info("# accessToken = {}",headerValue);
         log.info("# refreshToken = {}",refreshToken);

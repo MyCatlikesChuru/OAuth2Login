@@ -53,6 +53,9 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 // 토큰으로부터 Authentication 객체를 만듬
                 Authentication authentication = tokenProvider.getAuthentication(jwt);
+
+                log.info("# 토큰 검증 통과 = {}",jwt);
+
                 // SecurityContext 에 Authentication 객체를 저장
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -80,11 +83,11 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     // OncePerRequestFilter의 shouldNotFilter(); 오버라이딩함
     // EXCLUDE_URL과 동일한 요청이들어 왔을 경우, 현재 필터를 진행하지 않고 다음 필터를 진행
-/*    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        boolean result = EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
-        log.info("# Exclude url check = {}, result check = {}",request.getServletPath(),result);
-        return result;
-    }*/
+//    @Override
+//    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+//        boolean result = EXCLUDE_URL.stream().anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
+//        log.info("# Exclude url check = {}, result check = {}",request.getServletPath(),result);
+//        return result;
+//    }
 
 }

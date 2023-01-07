@@ -69,15 +69,15 @@ public class TokenProvider {
 		Date refreshTokenExpiresIn = getTokenExpiration(refreshTokenExpirationMinutes);
 
 		Map<String, Object> claims = new HashMap<>();
+		claims.put("roles", authMember.getRoles()); //
 		claims.put("id", authMember.getId());
-		claims.put("roles", authMember.getAuthorities());
 
 //		Key test = test(this.secretKey);
 
 		// Access Token 생성
 		String accessToken = Jwts.builder()
 			.setSubject(authMember.getEmail())                  // payload "sub": "email"
-			.setClaims(claims)      							// payload "auth": "ROLE_USER"
+			.setClaims(claims)      							// payload "roles": "ROLE_USER"
 			.setExpiration(accessTokenExpiresIn)                // payload "exp": 1516239022 (예시)
 			.signWith(key, SignatureAlgorithm.HS256)         	// header "alg": "HS512"
 			.compact();
@@ -106,11 +106,22 @@ public class TokenProvider {
 		}
 
 		// 클레임에서 권한 정보 가져오기
-		List<String> authorities = Arrays.stream(claims.get("roles").toString().split(","))
+		List<String> authorities = Arrays.stream(
+				claims.get("roles")
+						.toString()
+						.replace("[","")
+						.replace("]","")
+						.split(","))
 			.collect(Collectors.toList());
 
+		log.info("토큰의 claims authorities = {}",authorities.get(0));
+
 		AuthMember auth = AuthMember.of(claims.get("id", Long.class), authorities);
-		return new UsernamePasswordAuthenticationToken(auth, auth.getPassword(), auth.getAuthorities());
+
+		auth.getRoles().stream().forEach(a -> log.info("# auth.getRoles 권한 체크 = {}",a));
+		auth.getAuthorities().stream().forEach(a -> log.info("# auth.getAuthorities 권한 체크 = {}",a));
+
+		return new UsernamePasswordAuthenticationToken(auth, null, auth.getAuthorities());
 	}
 
 	// 토큰 검증

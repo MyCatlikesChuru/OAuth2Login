@@ -42,7 +42,7 @@ public class AuthMember extends Member implements UserDetails {
 	}
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
+	public List<GrantedAuthority> getAuthorities() {
 		return roles.stream()
 				.map(role -> new SimpleGrantedAuthority("ROLE_" + role))
 				.collect(Collectors.toList());
