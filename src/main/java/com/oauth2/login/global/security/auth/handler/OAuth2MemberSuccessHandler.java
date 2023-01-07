@@ -1,13 +1,19 @@
 package com.oauth2.login.global.security.auth.handler;
 
 
+import com.oauth2.login.domain.member.repository.MemberRepository;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
+import com.oauth2.login.global.security.auth.oauth.OAuthService;
+import com.oauth2.login.global.security.auth.oauth.OAuthUserProfile;
 import com.oauth2.login.global.security.auth.userdetails.AuthMember;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -18,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 
 
 @Slf4j
@@ -32,16 +39,17 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.info("# Redirect to Frontend");
 
-        OAuth2LoginAuthenticationToken authMember = (OAuth2LoginAuthenticationToken) authResult.getPrincipal();
-//        TokenDto tokenDto = tokenProvider.generateTokenDto(authMember);
-//        String grantType = tokenDto.getGrantType(); // Bearer
-//        String accessToken = tokenDto.getAccessToken(); // accessToken 만들기
-//        String refreshToken = tokenDto.getRefreshToken(); // refreshToken 만들기
+        DefaultOAuth2User ss = (DefaultOAuth2User) authResult.getPrincipal();
+        Map<String, Object> attributes = ss.getAttributes();
+        log.info(attributes.toString());
+        log.info("# 타입 캐스팅 문제없음1");
+        AuthMember authMember = (AuthMember) authResult.getPrincipal();
+        TokenDto tokenDto = tokenProvider.generateTokenDto(authMember);
+        String grantType = tokenDto.getGrantType(); // Bearer
+        String accessToken = tokenDto.getAccessToken(); // accessToken 만들기
+        String refreshToken = tokenDto.getRefreshToken(); // refreshToken 만들기
 
-        log.info("# 타입 캐스팅 문제없음");
-
-        String accessToken = authMember.getAccessToken().getTokenValue();
-        String refreshToken = authMember.getRefreshToken().getTokenValue();
+        log.info("# 타입 캐스팅 문제없음2");
 
         log.info("# accessToken = {}",accessToken);
         log.info("# refreshToken = {}",refreshToken);

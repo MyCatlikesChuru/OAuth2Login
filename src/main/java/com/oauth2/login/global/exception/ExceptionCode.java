@@ -4,7 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum ExceptionCode {
-    /* JWT */
+
+    INVALID_INPUT_VALUE(400, "잘못된 입력입니다."),
+    ENTITY_NOT_FOUND(400, "엔티티를 찾을 수 없습니다."),
+    INTERNAL_SERVER_ERROR(500, "서버 내부 오류"),
+    HANDLE_ACCESS_DENIED(403, "접근이 거부 되었습니다."),
+    METHOD_NOT_ALLOWED(405, "허용하지 않는 HTTP 메소드입니다."),
+
+    // JWT
     ACCESS_TOKEN_NOT_FOUND(404,"액세스토큰을 찾을 수 없습니다."),
     TOKEN_EXPIRED(400, "Token Expired"),
     TOKEN_INVALID(400, "Token Invalid"),

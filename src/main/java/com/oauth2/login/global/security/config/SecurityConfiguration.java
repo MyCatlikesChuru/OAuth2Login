@@ -53,7 +53,8 @@ public class SecurityConfiguration {
 				.and()
 				.authorizeHttpRequests(authorize -> authorize
 						.antMatchers(HttpMethod.GET, "/api/**").permitAll()
-						.antMatchers(HttpMethod.POST, "/api/**").hasRole("USER")
+						.antMatchers(HttpMethod.POST, "/api/user").hasRole("USER")
+						.antMatchers(HttpMethod.POST, "/api/admin").hasRole("ADMIN")
 						.anyRequest().permitAll())
 				.oauth2Login(oauth2 -> oauth2
 						.successHandler(new OAuth2MemberSuccessHandler(tokenProvider))

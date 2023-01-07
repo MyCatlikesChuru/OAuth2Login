@@ -11,6 +11,23 @@ public enum OAuthAttributes {
                 (String) attributes.get("email"),
                 String.valueOf(attributes.get("sub"))
         );
+    }),
+    NAVER("naver", (attributes) -> {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+        return new OAuthUserProfile(
+                (String) response.get("name"),
+                (String) response.get("email"),
+                String.valueOf(response.get("id"))
+        );
+    }),
+    KAKAO("kakao", (attributes) -> {
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile"); // 이미지 profile_image_url
+        return new OAuthUserProfile(
+                (String) profile.get("nickname"),
+                (String) kakaoAccount.get("email"),
+                String.valueOf(attributes.get("id"))
+        );
     });
     private final String registrationId;
     private final Function<Map<String, Object>, OAuthUserProfile> of;
@@ -19,6 +36,10 @@ public enum OAuthAttributes {
         this.registrationId = registrationId;
         this.of = of;
     }
+
+//    public static Map<String, Object> sameGetAttributes(String registrationId, Map<String, Object> attributes){
+//
+//    }
 
     public static OAuthUserProfile extract(String registrationId, Map<String, Object> attributes) {
         return Arrays.stream(values())

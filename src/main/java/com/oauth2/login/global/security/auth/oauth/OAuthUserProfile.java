@@ -1,9 +1,11 @@
 package com.oauth2.login.global.security.auth.oauth;
 
 import com.oauth2.login.domain.member.entity.Member;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class OAuthUserProfile {
     private final String name;
     private final String email;
@@ -24,11 +26,4 @@ public class OAuthUserProfile {
                 .build();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
 }

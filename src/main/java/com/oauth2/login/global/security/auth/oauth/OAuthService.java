@@ -30,18 +30,32 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         OAuth2User oAuth2User = delegate.loadUser(userRequest); // OAuth 서비스에서 가져온 유저 정보를 담고있음
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId(); // OAuth 서비스 이름(ex. kakao, github, naver, google)
+
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
                 .getUserInfoEndpoint().getUserNameAttributeName(); // OAuth 로그인 시 키(pk)가 되는 값
         Map<String, Object> attributes = oAuth2User.getAttributes(); // OAuth 서비스의 유저 정보들
 
+        log.info("# registrationId = {}", registrationId);
+        log.info("# userNameAttributeName = {}", userNameAttributeName);
+        log.info("# attributes = {}", attributes.toString());
+
+
+//        Map<String, Object> att = OAuthAttributes.sameGetAttributes(registrationId, attributes);
+
         OAuthUserProfile oAuthUserProfile = OAuthAttributes.extract(registrationId, attributes); // registrationId에 따라 유저 정보를 통해 공통된 UserProfile 객체로 만들어 줌
+
+        log.info("# oAuthUserProfile.getEmail = {}", oAuthUserProfile.getEmail());
+        log.info("# oAuthUserProfile.getName = {}", oAuthUserProfile.getName());
+        log.info("# oAuthUserProfile.getOauthId = {}", oAuthUserProfile.getOauthId());
+
 
         List<String> roles = customAuthorityUtils.getAuthrities("USER");
         List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities(roles);
 
-        saveOrUpdate(oAuthUserProfile, roles); // DB에 저장
+        saveOrUpdate(oAuthUserProfile, roles); // DB에 권한과 정보 저장 (권한은 1:N 테이블로 설계)
 
         log.info("# OAuth2 DB 저장완료 ");
+
 
         return new DefaultOAuth2User(authorities, attributes, userNameAttributeName);
     }

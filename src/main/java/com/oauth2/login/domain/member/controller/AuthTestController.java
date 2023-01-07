@@ -13,20 +13,29 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthTestController {
 
-    @GetMapping("/test")
-    public ResponseEntity createSomething(){
+    @GetMapping("/all")
+    public ResponseEntity allTest(){
 
         log.info("# test api 실행");
 
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping("/make")
-    public ResponseEntity createSomething(@RequestBody ApiTestDto apiTestDto){
+    @PostMapping("/user")
+    public ResponseEntity userTest(@RequestBody ApiTestDto apiTestDto){
 
         log.info("# make api 실행");
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
+
+    @PostMapping("/admin")
+    public ResponseEntity adminTest(@RequestBody ApiTestDto apiTestDto){
+
+        log.info("# make api 실행");
+
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
 
 }
