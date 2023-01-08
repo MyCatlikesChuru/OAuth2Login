@@ -54,7 +54,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                 // 토큰으로부터 Authentication 객체를 만듬
                 Authentication authentication = tokenProvider.getAuthentication(jwt);
 
-                log.info("# 토큰 검증 통과 = {}",jwt);
+                log.info("# Token verification success !");
 
                 // SecurityContext 에 Authentication 객체를 저장
                 SecurityContextHolder.getContext().setAuthentication(authentication);
