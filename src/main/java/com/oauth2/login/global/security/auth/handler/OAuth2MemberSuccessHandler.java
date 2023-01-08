@@ -45,10 +45,8 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
                                         HttpServletResponse response,
                                         Authentication authResult) throws IOException, ServletException {
 
-
-
-        OAuthCustomUser oAuthCustomUser = (OAuthCustomUser) authResult.getPrincipal();
         // OAuth2User oAuth2User = (DefaultOAuth2User) authResult.getPrincipal(); // 기본 구현체 반환하는법!!
+        OAuthCustomUser oAuthCustomUser = (OAuthCustomUser) authResult.getPrincipal();
         Map<String, Object> attributes = oAuthCustomUser.getAttributes();
         String registrationId = oAuthCustomUser.getName();
         List<GrantedAuthority> authorities = (List<GrantedAuthority>) oAuthCustomUser.getAuthorities();
@@ -66,7 +64,6 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         log.info("# OAuth2.0 AuthenticationSuccess !");
         log.info("# Redirect to Frontend");
-        //AuthMember authMember = (AuthMember) authResult.getPrincipal();
         TokenDto tokenDto = tokenProvider.generateTokenDto(authMember);
         String grantType = tokenDto.getGrantType(); // Bearer
         String accessToken = tokenDto.getAccessToken(); // accessToken 만들기

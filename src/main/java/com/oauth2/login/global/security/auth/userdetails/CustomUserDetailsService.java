@@ -24,9 +24,6 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Member member) {
-        // GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getRoles());
-
         return AuthMember.of(member);
     }
-
 }

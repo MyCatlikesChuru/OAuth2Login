@@ -32,7 +32,6 @@ public class Member {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
-
     @Builder
     public Member(String username, String email, String password, List<String> roles)  {
         this.username = username;

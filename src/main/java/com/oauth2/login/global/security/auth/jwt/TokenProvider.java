@@ -48,7 +48,7 @@ public class TokenProvider {
 	// Bean 등록후 Key SecretKey HS256 decode
 	@PostConstruct
 	public void init(){
-		String encode = Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
+		String encode = Encoders.BASE64.encode(this.secretKey.getBytes(StandardCharsets.UTF_8));
 		byte[] keyBytes = Decoders.BASE64.decode(encode);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
@@ -120,12 +120,13 @@ public class TokenProvider {
 						.split(","))
 			.collect(Collectors.toList());
 
-		log.info("토큰의 claims authorities = {}",authorities.get(0));
-
-		AuthMember auth = AuthMember.of(claims.get("id", Long.class), authorities);
+		AuthMember auth = AuthMember.of(
+				claims.get("id", Long.class),
+				claims.get("sub", String.class),
+				authorities);
 
 		auth.getRoles().stream().forEach(a -> log.info("# auth.getRoles 권한 체크 = {}",a));
-		auth.getAuthorities().stream().forEach(a -> log.info("# auth.getAuthorities 권한 체크 = {}",a));
+		// auth.getAuthorities().stream().forEach(a -> log.info("# auth.getAuthorities 권한 체크 = {}",a));
 
 		return new UsernamePasswordAuthenticationToken(auth, null, auth.getAuthorities());
 	}
@@ -160,7 +161,7 @@ public class TokenProvider {
 			log.info("JWT claims string is empty.");
 			log.trace("JWT claims string is empty trace: {}", e);
 			// throw new TokenEmpty();
-			throw new RuntimeException("TToken Illegal Argument");
+			throw new RuntimeException("Token Illegal Argument");
 		}
 
 	}

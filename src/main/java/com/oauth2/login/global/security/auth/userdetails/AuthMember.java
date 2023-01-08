@@ -27,8 +27,9 @@ public class AuthMember extends Member implements UserDetails {
 		this.roles = member.getRoles();
 	}
 
-	private AuthMember(Long id, List<String> roles) {
+	private AuthMember(Long id, String email, List<String> roles) {
 		this.id = id;
+		this.email = email;
 		this.password = "";
 		this.roles = roles;
 	}
@@ -37,8 +38,8 @@ public class AuthMember extends Member implements UserDetails {
 		return new AuthMember(member);
 	}
 
-	public static AuthMember of(Long id, List<String> roles) {
-		return new AuthMember(id, roles);
+	public static AuthMember of(Long id, String email, List<String> roles) {
+		return new AuthMember(id, email, roles);
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class AuthMember extends Member implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return email;
+		return this.email;
 	}
 
 	@Override

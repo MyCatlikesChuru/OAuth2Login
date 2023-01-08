@@ -7,7 +7,6 @@ import java.io.IOException;
 
 public class ErrorResponder {
     public static void sendErrorResponse(HttpServletResponse response, HttpStatus status) throws IOException {
-
         // 에러 응답내용 만들어 주기 (커스터 마이징)
     }
 }

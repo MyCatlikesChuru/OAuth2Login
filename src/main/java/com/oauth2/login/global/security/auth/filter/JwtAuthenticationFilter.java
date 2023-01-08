@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         ObjectMapper objectMapper = new ObjectMapper();
 
         LoginDto loginDto = objectMapper.readValue(request.getInputStream(), LoginDto.class); // ServletInputSteam을 LoginDto 클래스 객체로 역직렬화 (즉, JSON 객체꺼냄)
-         log.info("# attemptAuthentication : loginDto.getEmail()={}, login.getPassword()={}",loginDto.getEmail(),loginDto.getPassword());
+         log.info("# attemptAuthentication : loginDto.getEmail={}, login.getPassword={}",loginDto.getEmail(),loginDto.getPassword());
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
         return authenticationManager.authenticate(authenticationToken);
