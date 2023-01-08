@@ -36,6 +36,4 @@ public class AuthTestController {
 
         return new ResponseEntity(HttpStatus.CREATED);
     }
-
-
 }
