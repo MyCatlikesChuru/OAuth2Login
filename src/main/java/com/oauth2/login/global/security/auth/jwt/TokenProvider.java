@@ -1,5 +1,7 @@
 package com.oauth2.login.global.security.auth.jwt;
 
+import com.oauth2.login.global.exception.BusinessLogicException;
+import com.oauth2.login.global.exception.ExceptionCode;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.userdetails.AuthMember;
 import io.jsonwebtoken.*;
@@ -59,24 +61,14 @@ public class TokenProvider {
 		return calendar.getTime();
 	}
 
-
-//	public TokenDto generateTokenDto(Authentication authMember) {
-//
-//	}
 	public TokenDto generateTokenDto(AuthMember authMember) {
-		// 권한들 가져오기
-		String authorities = authMember.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.joining(","));
 
 		Date accessTokenExpiresIn = getTokenExpiration(accessTokenExpirationMinutes);
 		Date refreshTokenExpiresIn = getTokenExpiration(refreshTokenExpirationMinutes);
 
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("roles", authMember.getRoles()); //
+		claims.put("roles", authMember.getRoles());
 		claims.put("id", authMember.getId());
-
-//		Key test = test(this.secretKey);
 
 		// Access Token 생성
 		String accessToken = Jwts.builder()
@@ -108,7 +100,7 @@ public class TokenProvider {
 		Claims claims = parseClaims(accessToken);
 
 		if (claims.get("roles") == null) {
-			throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+			throw new BusinessLogicException(ExceptionCode.NO_ACCESS_TOKEN);
 		}
 
 		// 클레임에서 권한 정보 가져오기
@@ -125,7 +117,7 @@ public class TokenProvider {
 				claims.get("sub", String.class),
 				authorities);
 
-		auth.getRoles().stream().forEach(a -> log.info("# auth.getRoles 권한 체크 = {}",a));
+		auth.getRoles().stream().forEach(a -> log.info("# AuthMember.getRoles 권한 체크 = {}",a));
 		// auth.getAuthorities().stream().forEach(a -> log.info("# auth.getAuthorities 권한 체크 = {}",a));
 
 		return new UsernamePasswordAuthenticationToken(auth, null, auth.getAuthorities());
@@ -140,40 +132,31 @@ public class TokenProvider {
 		} catch (SignatureException e) {
 			log.info("Invalid JWT signature");
 			log.trace("Invalid JWT signature trace: {}", e);
-			// throw new TokenSignatureInvalid(); // 예외처리 커스텀를 위한 로직
-			throw new RuntimeException("Token Signature Invalid");
+			throw new BusinessLogicException(ExceptionCode.TOKEN_SIGNATURE_INVALID);
 		} catch (MalformedJwtException e) {
 			log.info("Invalid JWT token");
 			log.trace("Invalid JWT token trace: {}", e);
-			// throw new TokenMalformed();
-			throw new RuntimeException("Token Malformed");
+			throw new BusinessLogicException(ExceptionCode.TOKEN_MALFORMED);
 		} catch (ExpiredJwtException e) {
 			log.info("Expired JWT token");
 			log.trace("Expired JWT token trace: {}", e);
-			// throw new TokenExpired();
-			throw new RuntimeException("Token Expired");
+			throw new BusinessLogicException(ExceptionCode.TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.info("Unsupported JWT token");
 			log.trace("Unsupported JWT token trace: {}", e);
-			// throw new TokenUnsupported();
-			throw new RuntimeException("Token Unsupported");
+			throw new BusinessLogicException(ExceptionCode.TOKEN_UNSUPPORTED);
 		} catch (IllegalArgumentException e) {
 			log.info("JWT claims string is empty.");
 			log.trace("JWT claims string is empty trace: {}", e);
-			// throw new TokenEmpty();
-			throw new RuntimeException("Token Illegal Argument");
+			throw new BusinessLogicException(ExceptionCode.TOKEN_ILLEGAL_ARGUMENT);
 		}
-
 	}
 
 	public Claims parseClaims(String accessToken)  {
-
-
 		return Jwts.parserBuilder()
 				.setSigningKey(key)
 				.build()
 				.parseClaimsJws(accessToken)
 				.getBody();
 	}
-
 }

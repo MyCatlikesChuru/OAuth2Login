@@ -3,52 +3,73 @@ package com.oauth2.login.global.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
-	protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-		log.error("handleMethodArgumentNotValidException", e);
-		final ErrorResponse response = ErrorResponse.of(ExceptionCode.INVALID_INPUT_VALUE, e.getBindingResult());
-		return ResponseEntity.badRequest().body(response);
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleMethodArgumentNotValidException(
+			MethodArgumentNotValidException e) {
+
+		return ErrorResponse.of(e.getBindingResult());
 	}
 
-	@ExceptionHandler(BusinessLogicException.class)
-	protected ResponseEntity<ErrorResponse> handleBusinessException(final BusinessLogicException e) {
-		log.error("handleEntityNotFoundException", e);
-		final ExceptionCode errorCode = e.getExceptionCode();
-		final ErrorResponse response = ErrorResponse.of(errorCode);
-		return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleConstraintViolationException(
+			ConstraintViolationException e) {
+
+		return ErrorResponse.of(e.getConstraintViolations());
 	}
 
-	@ExceptionHandler(AccessDeniedException.class)
-	protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
-		log.error("handleAccessDeniedException", e);
-		final ErrorResponse response = ErrorResponse.of(ExceptionCode.HANDLE_ACCESS_DENIED);
-		return new ResponseEntity<>(response, HttpStatus.valueOf(ExceptionCode.HANDLE_ACCESS_DENIED.getStatus()));
+	@ExceptionHandler
+	public ResponseEntity handleBusinessLogicException(BusinessLogicException e) {
+		final ErrorResponse response = ErrorResponse.of(e.getExceptionCode());
+
+		return new ResponseEntity<>(response, HttpStatus.valueOf(e.getExceptionCode()
+				.getStatus()));
 	}
 
-	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-	protected ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-		log.error("handleHttpRequestMethodNotSupportedException", e);
-		final ErrorResponse response = ErrorResponse.of(ExceptionCode.METHOD_NOT_ALLOWED);
-		return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+	public ErrorResponse handleHttpRequestMethodNotSupportedException(
+			HttpRequestMethodNotSupportedException e) {
+
+		return ErrorResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
 	}
 
-	@ExceptionHandler(Exception.class)
-	protected ResponseEntity<ErrorResponse> handleException(Exception e) {
-		log.error("handleEntityNotFoundException", e);
-		final ErrorResponse response = ErrorResponse.of(ExceptionCode.INTERNAL_SERVER_ERROR);
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleHttpMessageNotReadableException(
+			HttpMessageNotReadableException e) {
 
-		return ResponseEntity.internalServerError().body(response);
+		return ErrorResponse.of(HttpStatus.BAD_REQUEST, "Required request body is missing");
 	}
 
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleMissingServletRequestParameterException(
+			MissingServletRequestParameterException e) {
 
+		return ErrorResponse.of(HttpStatus.BAD_REQUEST, e.getMessage());
+	}
+
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ErrorResponse handleException(Exception e) {
+		log.error("# handle Exception", e);
+
+		return ErrorResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
 }

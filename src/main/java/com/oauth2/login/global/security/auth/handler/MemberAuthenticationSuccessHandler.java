@@ -15,6 +15,6 @@ public class MemberAuthenticationSuccessHandler implements AuthenticationSuccess
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
                                         Authentication authentication) {
-        log.info("Authenticated successfully !");
+        log.info("# Authenticated successfully !");
     }
 }
