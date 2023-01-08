@@ -117,7 +117,7 @@ public class TokenProvider {
 				claims.get("sub", String.class),
 				authorities);
 
-		auth.getRoles().stream().forEach(a -> log.info("# AuthMember.getRoles 권한 체크 = {}",a));
+		auth.getRoles().stream().forEach(authMember -> log.info("# AuthMember.getRoles 권한 체크 = {}", authMember));
 		// auth.getAuthorities().stream().forEach(a -> log.info("# auth.getAuthorities 권한 체크 = {}",a));
 
 		return new UsernamePasswordAuthenticationToken(auth, null, auth.getAuthorities());
@@ -131,23 +131,23 @@ public class TokenProvider {
 			return true;
 		} catch (SignatureException e) {
 			log.info("Invalid JWT signature");
-			log.trace("Invalid JWT signature trace: {}", e);
+			log.trace("Invalid JWT signature trace = {}", e);
 			throw new BusinessLogicException(ExceptionCode.TOKEN_SIGNATURE_INVALID);
 		} catch (MalformedJwtException e) {
 			log.info("Invalid JWT token");
-			log.trace("Invalid JWT token trace: {}", e);
+			log.trace("Invalid JWT token trace = {}", e);
 			throw new BusinessLogicException(ExceptionCode.TOKEN_MALFORMED);
 		} catch (ExpiredJwtException e) {
 			log.info("Expired JWT token");
-			log.trace("Expired JWT token trace: {}", e);
+			log.trace("Expired JWT token trace = {}", e);
 			throw new BusinessLogicException(ExceptionCode.TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.info("Unsupported JWT token");
-			log.trace("Unsupported JWT token trace: {}", e);
+			log.trace("Unsupported JWT token trace = {}", e);
 			throw new BusinessLogicException(ExceptionCode.TOKEN_UNSUPPORTED);
 		} catch (IllegalArgumentException e) {
 			log.info("JWT claims string is empty.");
-			log.trace("JWT claims string is empty trace: {}", e);
+			log.trace("JWT claims string is empty trace = {}", e);
 			throw new BusinessLogicException(ExceptionCode.TOKEN_ILLEGAL_ARGUMENT);
 		}
 	}
