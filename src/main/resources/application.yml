@@ -28,7 +28,7 @@ spring:
           github:
             clientId: ${H_CLIENT_ID}
             clientSecret: ${H_CLIENT_SECRET}
-            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}" # (== http://localhost:8080/login/oauth2/code/google)
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}" # == http://localhost:8080/login/oauth2/code/github)
             authorization-grant-type: authorization_code
             client-name: GitHub
             scope:
@@ -37,7 +37,7 @@ spring:
           kakao:
             client-id: ${K_CLIENT_ID} # 앱 설정 -> 앱 키 -> REST API 키
             client-secret: ${K_CLIENT_SECRET}  # 제품 설정 -> 카카오 로그인 -> 보안 -> Client Secret
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: "{baseUrl}/{action}/oauth2/code/{registrationId}" # == http://localhost:8080/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: POST
             client-name: Kakao
