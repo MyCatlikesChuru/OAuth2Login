@@ -41,8 +41,8 @@ public class MemberService {
     // OAuth2 인증 완료후 회원가입 및 업데이트
     public Member saveMemberOauth(OAuthUserProfile userProfile, List<String> roles) {
         Member member = memberRepository.findByEmail(userProfile.getEmail())
-                .map(m -> m.oauthUpdate(userProfile.getName(), userProfile.getEmail(), roles)) // 변경감지 Update
-                .orElse(userProfile.createOauth2Member(userProfile.getName(), userProfile.getEmail(),roles));
+                .map(m -> m.oauthUpdate(userProfile.getName(), userProfile.getEmail(), userProfile.getImage(), roles)) // 변경감지 Update
+                .orElse(userProfile.createOauth2Member(userProfile.getName(), userProfile.getEmail(), userProfile.getImage(), roles));
         return memberRepository.save(member);
     }
 

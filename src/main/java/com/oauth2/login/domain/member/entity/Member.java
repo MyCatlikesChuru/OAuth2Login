@@ -26,6 +26,9 @@ public class Member {
     @Column(name = "email", unique = true)
     private String email;
 
+    @Column(name = "image")
+    private String image;
+
     @Column(name = "password", unique = true)
     private String password;
 
@@ -33,16 +36,18 @@ public class Member {
     private List<String> roles = new ArrayList<>();
 
     @Builder
-    public Member(String username, String email, String password, List<String> roles)  {
+    public Member(String username, String email, String image, String password, List<String> roles)  {
         this.username = username;
         this.email = email;
+        this.image = image;
         this.password = password;
         this.roles = roles;
     }
 
-    public Member oauthUpdate(String name, String email, List<String> roles) {
+    public Member oauthUpdate(String name, String email, String image, List<String> roles) {
         this.username = name;
         this.email = email;
+        this.image = image;
         this.roles = roles;
         return this;
     }
