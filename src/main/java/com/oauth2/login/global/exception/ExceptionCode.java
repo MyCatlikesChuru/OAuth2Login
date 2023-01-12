@@ -11,6 +11,9 @@ public enum ExceptionCode {
     HANDLE_ACCESS_DENIED(403, "접근이 거부 되었습니다."),
     METHOD_NOT_ALLOWED(405, "허용하지 않는 HTTP 메소드입니다."),
 
+    // MEMBER
+    MEMBER_NOT_FOUND(404,"Member is not found"),
+
     // JWT
     ACCESS_TOKEN_NOT_FOUND(404,"액세스토큰을 찾을 수 없습니다."),
     NO_ACCESS_TOKEN(403, "권한 정보가 없는 토큰입니다."),

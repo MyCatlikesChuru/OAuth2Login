@@ -1,4 +1,4 @@
-package com.oauth2.login.global.security.config;
+package com.oauth2.login.global.config;
 
 import com.oauth2.login.global.security.auth.loginresolver.LoginMemberEmailResolver;
 import com.oauth2.login.global.security.auth.loginresolver.LoginMemberIdResolver;

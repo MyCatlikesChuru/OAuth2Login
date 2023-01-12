@@ -1,11 +1,8 @@
 package com.oauth2.login.global.security.auth.handler;
 
-import com.google.gson.Gson;
-import com.oauth2.login.global.response.ErrorResponse;
-import com.oauth2.login.global.security.auth.utils.ErrorResponder;
+import com.oauth2.login.global.security.auth.utils.Responder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
@@ -19,6 +16,6 @@ public class MemberAuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         log.error("# Authentication failed: {}", exception.getMessage());
-        ErrorResponder.sendErrorResponse(response, HttpStatus.UNAUTHORIZED);
+        Responder.sendErrorResponse(response, HttpStatus.UNAUTHORIZED);
     }
 }

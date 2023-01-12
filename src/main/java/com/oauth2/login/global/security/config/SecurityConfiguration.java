@@ -1,6 +1,7 @@
 package com.oauth2.login.global.security.config;
 
 import com.oauth2.login.domain.member.service.MemberService;
+import com.oauth2.login.global.common.redis.RedisDao;
 import com.oauth2.login.global.security.auth.filter.JwtAuthenticationFilter;
 import com.oauth2.login.global.security.auth.filter.JwtVerificationFilter;
 import com.oauth2.login.global.security.auth.handler.*;
@@ -30,7 +31,7 @@ public class SecurityConfiguration {
 	private final OAuthService oAuthService;
 	private final MemberService memberService;
 
-	//private final RefreshTokenRepository refreshTokenRepository;
+	private final RedisDao redisDao;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -83,7 +84,7 @@ public class SecurityConfiguration {
 		public void configure(HttpSecurity builder) throws Exception {
 			AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
 
-			JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, tokenProvider);
+			JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, tokenProvider, redisDao);
 			jwtAuthenticationFilter.setFilterProcessesUrl("/members/login");
 			jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler()); // refreshTokenRepository 넣기
 			jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());

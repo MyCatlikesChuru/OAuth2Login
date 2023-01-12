@@ -2,10 +2,12 @@ package com.oauth2.login.global.security.auth.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oauth2.login.global.common.redis.RedisDao;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.dto.LoginDto;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
 import com.oauth2.login.global.security.auth.userdetails.AuthMember;
+import com.oauth2.login.global.security.auth.utils.Responder;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
@@ -19,15 +21,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider) {
+    private final RedisDao redisDao;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, TokenProvider tokenProvider, RedisDao redisDao) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
+        this.redisDao = redisDao;
     }
 
     /*
@@ -58,6 +64,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String headerValue = grantType + " " + accessToken;
         response.setHeader("Authorization",headerValue);
         response.setHeader("Refresh",refreshToken);
+
+        Responder.loginSuccessResponse(response,authMember); // login 완료시 Response 응답 만들기
+
+        // Refresh Token Redis 저장 ( key = Email / value = Refresh Token
+        int refreshTokenExpirationMinutes = tokenProvider.getRefreshTokenExpirationMinutes();
+        redisDao.setValues(authMember.getEmail(),refreshToken, Duration.ofMinutes(refreshTokenExpirationMinutes));
 
 
         // RefreshToken Cookie로 담는 방법

@@ -5,6 +5,13 @@ spring:
       path: /h2
   datasource:
     url: jdbc:h2:mem:test
+  # redis 설정
+  cache:
+    type: redis
+  redis:
+    host: localhost
+    port: 6379
+  # Jpa 설정
   jpa:
     hibernate:
       ddl-auto: create  # (1) 스키마 자동 생성
@@ -12,9 +19,6 @@ spring:
     properties:
       hibernate:
         format_sql: true  # (3) SQL pretty print
-  sql:
-    init:
-      data-locations: classpath*:db/h2/data.sql
   security:
     oauth2:
       client:
@@ -76,5 +80,5 @@ server:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}  # 환경 변수로 설정했음
-  access-token-expiration-minutes: 30
-  refresh-token-expiration-minutes: 420
+  access-token-expiration-minutes: 1
+  refresh-token-expiration-minutes: 3

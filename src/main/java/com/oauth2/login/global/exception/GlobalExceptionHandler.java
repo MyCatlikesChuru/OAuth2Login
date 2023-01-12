@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler
 	public ResponseEntity handleBusinessLogicException(BusinessLogicException e) {
 		final ErrorResponse response = ErrorResponse.of(e.getExceptionCode());
-
+		log.info("Test = = = =");
 		return new ResponseEntity<>(response, HttpStatus.valueOf(e.getExceptionCode()
 				.getStatus()));
 	}

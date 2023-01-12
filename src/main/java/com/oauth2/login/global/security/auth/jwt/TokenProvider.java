@@ -4,6 +4,7 @@ import com.oauth2.login.global.exception.BusinessLogicException;
 import com.oauth2.login.global.exception.ExceptionCode;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.userdetails.AuthMember;
+import com.oauth2.login.global.security.auth.utils.Responder;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
@@ -12,7 +13,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -20,8 +20,11 @@ import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Component
@@ -32,6 +35,8 @@ public class TokenProvider {
 	 * JWT 토큰 관련 암호화, 복호화, 검증 로직
 	 */
 	private static final String BEARER_TYPE = "Bearer";
+	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String BEARER_PREFIX = "Bearer ";
 
 	@Getter
 	@Value("${jwt.secret-key}")
@@ -125,32 +130,42 @@ public class TokenProvider {
 	}
 
 	// 토큰 검증
-	public boolean validateToken(String token) {
+	public boolean validateToken(String token, HttpServletResponse response) {
 
 		try {
 			parseClaims(token);
-			return true;
 		} catch (SignatureException e) {
 			log.info("Invalid JWT signature");
 			log.trace("Invalid JWT signature trace = {}", e);
-			throw new BusinessLogicException(ExceptionCode.TOKEN_SIGNATURE_INVALID);
+			Responder.sendErrorResponse(response, ExceptionCode.TOKEN_SIGNATURE_INVALID);
 		} catch (MalformedJwtException e) {
 			log.info("Invalid JWT token");
 			log.trace("Invalid JWT token trace = {}", e);
-			throw new BusinessLogicException(ExceptionCode.TOKEN_MALFORMED);
+			Responder.sendErrorResponse(response, ExceptionCode.TOKEN_MALFORMED);
 		} catch (ExpiredJwtException e) {
 			log.info("Expired JWT token");
 			log.trace("Expired JWT token trace = {}", e);
-			throw new BusinessLogicException(ExceptionCode.TOKEN_EXPIRED);
+			Responder.sendErrorResponse(response, ExceptionCode.TOKEN_EXPIRED);
 		} catch (UnsupportedJwtException e) {
 			log.info("Unsupported JWT token");
 			log.trace("Unsupported JWT token trace = {}", e);
-			throw new BusinessLogicException(ExceptionCode.TOKEN_UNSUPPORTED);
+			Responder.sendErrorResponse(response, ExceptionCode.TOKEN_UNSUPPORTED);
 		} catch (IllegalArgumentException e) {
 			log.info("JWT claims string is empty.");
 			log.trace("JWT claims string is empty trace = {}", e);
-			throw new BusinessLogicException(ExceptionCode.TOKEN_ILLEGAL_ARGUMENT);
+			Responder.sendErrorResponse(response, ExceptionCode.TOKEN_ILLEGAL_ARGUMENT);
 		}
+		return true;
+	}
+
+	// Request Header Access Token 정보를 꺼내오는 메소드
+	public String resolveToken(HttpServletRequest request) {
+		String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+			return bearerToken.substring(7);
+		}
+
+		return null;
 	}
 
 	public Claims parseClaims(String accessToken)  {
