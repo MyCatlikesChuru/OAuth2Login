@@ -31,7 +31,7 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
                     "/members/signup",
                     "/members/login",
                     "/members/reissue",
-                    "/oauth2/authorization/google",
+                    "/oauth2/authorizatㅏion/google",
                     "/oauth2/authorization/kakao",
                     "/oauth2/authorization/naver");
 

@@ -28,9 +28,9 @@ public class RedisDao {
         values.set(key, data, duration);
     }
 
-    public Object getValues(String key) {
+    public String getValues(String key) {
         ValueOperations<String, Object> values = redisTemplate.opsForValue();
-        return values.get(key);
+        return (String) values.get(key);
     }
 
     public void deleteValues(String key) {
@@ -54,5 +54,12 @@ public class RedisDao {
     public void deleteHashOps(String key, String hashKey) {
         HashOperations<String, Object, Object> values = redisTemplate.opsForHash();
         values.delete(key, hashKey);
+    }
+
+    public boolean validateValue(String value){
+        if(value == null){
+            return false;
+        }
+        return true;
     }
 }

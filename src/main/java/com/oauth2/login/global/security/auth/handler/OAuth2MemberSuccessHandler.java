@@ -2,8 +2,8 @@ package com.oauth2.login.global.security.auth.handler;
 
 
 import com.oauth2.login.domain.member.entity.Member;
-import com.oauth2.login.domain.member.repository.MemberRepository;
 import com.oauth2.login.domain.member.service.MemberService;
+import com.oauth2.login.global.common.redis.RedisDao;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
 import com.oauth2.login.global.security.auth.jwt.TokenProvider;
 import com.oauth2.login.global.security.auth.oauth.OAuthAttributes;
@@ -14,9 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +36,7 @@ import java.util.stream.Collectors;
 public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final TokenProvider tokenProvider;
     private final MemberService memberService;
+    private final RedisDao redisDao;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -86,13 +84,10 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
         // Token을 토대로 URI를 만들어서 String으로 변환
         String uri = createURI(request, accessToken, refreshToken).toString();
 
-        // 헤더에 전송해보기
-        String headerValue = grantType + " " + accessToken;
-        response.setHeader("Authorization",headerValue); // Header에 등록
-        response.setHeader("Refresh",refreshToken); // Header에 등록
-        // response.setHeader("Access-Control-Allow-Credentials:", "true");
-        // response.setHeader("Access-Control-Allow-Origin", "*");
-        // response.setHeader("Access-Control-Expose-Headers", "Authorization");
+        tokenProvider.accessTokenSetHeader(accessToken, response); // Access Token 헤더에 전송
+        tokenProvider.refreshTokenSetCookie(refreshToken,response); // Refresh Token 쿠키에 전송
+        int refreshTokenExpirationMinutes = tokenProvider.getRefreshTokenExpirationMinutes();
+        redisDao.setValues(refreshToken,accessToken, Duration.ofMinutes(refreshTokenExpirationMinutes)); // redis 저장
 
         // 만든 URI로 리다이렉트 보냄
         getRedirectStrategy().sendRedirect(request,response,uri);
@@ -102,7 +97,7 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
         // 리다이렉트시 JWT를 URI로 보내는 방법
         MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("access_token", accessToken);
-        queryParams.add("refresh_token", refreshToken);
+        // queryParams.add("refresh_token", refreshToken);
 
         String serverName = request.getServerName();
         // log.info("# serverName = {}",serverName);

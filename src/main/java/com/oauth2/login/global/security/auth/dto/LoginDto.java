@@ -1,5 +1,6 @@
 package com.oauth2.login.global.security.auth.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter

@@ -1,5 +1,6 @@
 package com.oauth2.login.global.security.auth.jwt;
 
+import com.oauth2.login.global.common.redis.RedisDao;
 import com.oauth2.login.global.exception.BusinessLogicException;
 import com.oauth2.login.global.exception.ExceptionCode;
 import com.oauth2.login.global.security.auth.dto.TokenDto;
@@ -10,7 +11,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -28,14 +31,15 @@ import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TokenProvider {
 
 	/*
 	 * 유저 정보로 JWT 토큰을 만들거나 토큰을 바탕으로 유저 정보를 가져옴
 	 * JWT 토큰 관련 암호화, 복호화, 검증 로직
 	 */
-	private static final String BEARER_TYPE = "Bearer";
-	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String BEARER_TYPE = "Bearer";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BEARER_PREFIX = "Bearer ";
 
 	@Getter
@@ -86,7 +90,7 @@ public class TokenProvider {
 
 		// Refresh Token 생성
 		String refreshToken = Jwts.builder()
-			.setSubject(authMember.getEmail()) // id? email?
+			.setSubject(authMember.getEmail())
 			.setIssuedAt(Calendar.getInstance().getTime())
 			.setExpiration(refreshTokenExpiresIn)
 			.signWith(key, SignatureAlgorithm.HS256)
@@ -94,6 +98,7 @@ public class TokenProvider {
 
 		return TokenDto.builder()
 			.grantType(BEARER_TYPE)
+			.authorizationType(AUTHORIZATION_HEADER)
 			.accessToken(accessToken)
 			.accessTokenExpiresIn(accessTokenExpiresIn.getTime())
 			.refreshToken(refreshToken)
@@ -129,6 +134,8 @@ public class TokenProvider {
 		return new UsernamePasswordAuthenticationToken(auth, null, auth.getAuthorities());
 	}
 
+
+
 	// 토큰 검증
 	public boolean validateToken(String token, HttpServletResponse response) {
 
@@ -158,6 +165,27 @@ public class TokenProvider {
 		return true;
 	}
 
+	public void accessTokenSetHeader(String accessToken, HttpServletResponse response){
+		String headerValue = BEARER_PREFIX + accessToken;
+		response.setHeader(AUTHORIZATION_HEADER,headerValue);
+		log.info("# accessToken = {}",headerValue);
+	}
+
+	public void refreshTokenSetHeader(String refreshToken, HttpServletResponse response){
+		response.setHeader("Refresh",refreshToken);
+		log.info("# refreshToken = {}",refreshToken);
+	}
+
+	public ResponseCookie refreshTokenSetCookie(String refreshToken, HttpServletResponse response){
+		return ResponseCookie.from("refreshToken", refreshToken)
+				.maxAge(7 * 24 * 60 * 60) // days * hours * min * sec
+				.path("/")
+				.secure(true)
+				.sameSite("None")
+				.httpOnly(true)
+				.build();
+	}
+
 	// Request Header Access Token 정보를 꺼내오는 메소드
 	public String resolveToken(HttpServletRequest request) {
 		String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
@@ -168,11 +196,12 @@ public class TokenProvider {
 		return null;
 	}
 
-	public Claims parseClaims(String accessToken)  {
+	// 토큰 복호화, 예외발생(토큰만료, 시그니처오류)시 Claims 객체 안만들어짐.
+	public Claims parseClaims(String token)  {
 		return Jwts.parserBuilder()
 				.setSigningKey(key)
 				.build()
-				.parseClaimsJws(accessToken)
+				.parseClaimsJws(token)
 				.getBody();
 	}
 }

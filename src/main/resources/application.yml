@@ -81,4 +81,4 @@ server:
 jwt:
   secret-key: ${JWT_SECRET_KEY}  # 환경 변수로 설정했음
   access-token-expiration-minutes: 1
-  refresh-token-expiration-minutes: 3
+  refresh-token-expiration-minutes: 10
